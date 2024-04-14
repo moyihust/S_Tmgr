@@ -3,81 +3,80 @@ package main
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/text/transform"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type Student struct {
-	gorm.Model
-	Sno         string `gorm:"primary_key"`
+	Sno         string `gorm:"primaryKey"`
 	Sname       string `gorm:"unique"`
 	Ssex        string
-	Sage        int
+	Sage        int16
 	Sdept       string
 	Scholarship string
-	Courses     []Course `gorm:"many2many:student_courses;"`
+}
+
+func (Student) TableName() string {
+	return "Student"
 }
 
 type Course struct {
-	gorm.Model
-	Cno      string `gorm:"primary_key"`
-	Cname    string
-	Cpno     string
-	Ccredit  int
-	Students []Student `gorm:"many2many:student_courses;"`
+	Cno     string `gorm:"primaryKey"`
+	Cname   string
+	Cpno    string `gorm:"foreignKey:Cno"`
+	Ccredit int16
+}
+
+func (Course) TableName() string {
+	return "Course"
 }
 
 type SC struct {
-	gorm.Model
-	Sno   string `gorm:"primary_key"`
-	Cno   string `gorm:"primary_key"`
-	Grade int
+	Sno   string `gorm:"primaryKey"`
+	Cno   string `gorm:"primaryKey"`
+	Grade int16
+}
+
+func (SC) TableName() string {
+	return "Sc"
+}
+
+// 将字符串转换为指定的编码格式
+func transformString(str string, encoder transform.Transformer) string {
+	result, _, err := transform.String(encoder, str)
+	if err != nil {
+		return str
+	}
+	return result
 }
 
 func main() {
-	db, err := gorm.Open("mysql", "root:@tcp(127.0.0.1:2881)/S_T?charset=utf8mb4&parseTime=True&loc=Local")
+
+	// 初始化 logrus
+	// logrus.SetFormatter(&logrus.TextFormatter{})
+	// logrus.SetLevel(logrus.DebugLevel)
+	// logrus.SetOutput(os.Stdout)
+
+	dsn := "root@tcp(127.0.0.1:2881)/S_T?charset=utf8mb4&parseTime=True&loc=Local"
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		fmt.Println(err.Error())
+		return
+
 	}
-	defer db.Close()
 
-	// Migrate the schema
-	db.AutoMigrate(&Student{}, &Course{}, &SC{})
+	r := gin.Default()
+	// 添加 CORS 中间件
+	r.Use(cors.Default())
+	r.GET("/student", func(c *gin.Context) {
+		var students []Student
+		db.Find(&students)
+		c.JSON(200, students)
+	})
 
-	// Create a new student
-	db.Create(&Student{Sno: "200215121", Sname: "张三", Sage: 20, Ssex: "男", Sdept: "CS", Scholarship: "是"})
-
-	// Update student's information
-	db.Model(&Student{}).Where("sno = ?", "200215121").Update("Sname", "李四")
-
-	// Add a new course
-	db.Create(&Course{Cno: "1", Cname: "计算机科学", Cpno: "", Ccredit: 4})
-
-	// Update course information
-	db.Model(&Course{}).Where("cno = ?", "1").Update("Cname", "计算机科学与技术")
-
-	// Delete a course that no student has chosen
-	db.Where("cno NOT IN (?)", db.Table("sc").Select("cno")).Delete(&Course{})
-
-	// Enter a student's grade
-	db.Create(&SC{Sno: "200215121", Cno: "1", Grade: 95})
-
-	// Update a student's grade
-	db.Model(&SC{}).Where("sno = ? AND cno = ?", "200215121", "1").Update("Grade", 96)
-
-	// Calculate the average, best, worst grades, excellent rate, and number of failures of a student
-	var avgGrade, bestGrade, worstGrade, excellentRate, numberOfFailures int
-	db.Model(&SC{}).Where("sno = ?", "200215121").Select("AVG(grade) as avg_grade, MAX(grade) as best_grade, MIN(grade) as worst_grade").Scan(&avgGrade, &bestGrade, &worstGrade)
-	db.Model(&SC{}).Where("sno = ? AND grade >= 90", "200215121").Count(&excellentRate)
-	db.Model(&SC{}).Where("sno = ? AND grade < 60", "200215121").Count(&numberOfFailures)
-
-	// Rank students' grades by department
-	var students []Student
-	db.Preload("Courses").Order("grade desc").Find(&students)
-
-	// Input a student number, display the student's basic information and course selection information
-	var student Student
-	db.Preload("Courses").Where("sno = ?", "200215121").First(&student)
-
-	fmt.Println(student)
+	r.Run(":1145")
 }
