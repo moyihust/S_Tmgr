@@ -25,7 +25,7 @@
             </span>
           </template>
           <a-menu-item key="6" @click="$router.push('/grade')">成绩录入</a-menu-item>
-          <a-menu-item key="8" @click="$router.push('/sum')">成绩统计</a-menu-item>
+          <a-menu-item key="8" @click="$router.push('/sum')">成绩查询</a-menu-item>
         </a-sub-menu>
       </a-menu>
     </a-layout-sider>
