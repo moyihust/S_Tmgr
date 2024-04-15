@@ -73,4 +73,5 @@
 import InputStudent from '../components/InputStudent.vue';
 import SearchStudent from '../components/SearchStudent.vue';
 import StudentMsgs from '../components/StudentMsgs.vue';
+
 </script>

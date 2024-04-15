@@ -18,58 +18,26 @@
             </template>
             <template v-else-if="column.key === 'action'">
                 <span>
-                    <a-button type="danger" @click="openEditDrawer(record)">编辑</a-button>
+                    <EditStudent :record="record" @refresh="refresh"/>
                     <a-divider type="vertical" />
-                    <a-popconfirm title="确定要删除吗?" @confirm="handleDeleteStudent(record.studentId)">
+                    <a-popconfirm title="确定要删除吗?" @confirm="handleDeleteStudent(record.Sno)">
                         <a-button  type="danger">删除</a-button>
                     </a-popconfirm>
                 </span>
             </template>
         </template>
     </a-table>
-
-    <!-- 编辑学生信息的抽屉 -->
-    <a-drawer :visible="showEditDrawer" :title="'编辑学生信息'" :closable="true" :width="520" @close="closeEditDrawer">
-        <a-form :form="editStudentForm" @submit="handleEditStudent" layout="vertical">
-            <!-- 表单内容... -->
-            <a-form-item label="学号">
-                <a-input v-model="editStudentForm.Sno" placeholder="请输入学号" disabled />
-            </a-form-item>
-            <a-form-item label="姓名">
-                <a-input v-model="editStudentForm.Sname" placeholder="请输入姓名" />
-            </a-form-item>
-            <a-form-item label="性别">
-                <a-radio-group v-model="editStudentForm.Ssex">
-                    <a-radio value="男">男</a-radio>
-                    <a-radio value="女">女</a-radio>
-                </a-radio-group>
-            </a-form-item>
-            <a-form-item label="年龄">
-                <a-input-number v-model="editStudentForm.Sage" placeholder="请输入年龄" />
-            </a-form-item>
-            <a-form-item label="专业">
-                <a-input v-model="editStudentForm.Sdept" placeholder="请输入专业" />
-            </a-form-item>
-            <a-form-item label="奖学金">
-                <a-radio-group v-model="editStudentForm.scholarship">
-                    <a-radio value="是">是</a-radio>
-                    <a-radio value="否">否</a-radio>
-                </a-radio-group>
-            </a-form-item>
-            <a-form-item>
-                <a-button @click="submitEditStudent" type="primary" html-type="submit">提交</a-button>
-                <a-button @click="closeEditDrawer" style="margin-left: 8px">取消</a-button>
-            </a-form-item>
-            
-        </a-form>
-    </a-drawer>
 </template>
 <script>
 import axios from 'axios';
+import EditStudent from './EditStudent.vue';
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:1145'
 });
 export default {
+    components: {
+        EditStudent
+    },
     data() {
         return {
             // ...其他数据
@@ -110,8 +78,8 @@ export default {
                 },
                 {
                     title: '奖学金',
-                    dataIndex: 'scholarship',
-                    key: 'scholarship'
+                    dataIndex: 'Scholarship',
+                    key: 'Scholarship'
                 },
                 {
                     title: 'Action',
@@ -147,6 +115,17 @@ export default {
                 this.students.splice(index, 1, this.editStudentForm);
             }
         },
+        handleDeleteStudent(sno) {
+            console.log('删除学生:', sno);
+            axiosInstance.delete(`/deleteStudent/${sno}`)
+                .then(response => {
+                    console.log('Deleted student:', response.data);
+                    this.refresh(); // 删除学生后刷新列表
+                })
+                .catch(error => {
+                    console.error('Error deleting student:', error);
+                });
+        },
         // ...其他方法
         closeEditDrawer() {
             // 关闭编辑抽屉时的操作
@@ -165,7 +144,8 @@ export default {
             });
             this.closeEditDrawer();
         },
-        refrash() {
+        refresh() {
+            console.log('refresh');
             axiosInstance.get('/student')
             .then(response => {
                 this.students = response.data;
