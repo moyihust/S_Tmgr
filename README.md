@@ -1,5 +1,16 @@
 学生成绩管理系统
 
+本地部署oceanbase
+
+下载
+```
+obd demo
+```
+每次开机需要启动集群
+```
+obd cluster restart demo
+```
+
 启动client
 
 ```
