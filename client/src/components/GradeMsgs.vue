@@ -1,4 +1,10 @@
 <template>
+    <div>
+        <div class="button-container">
+            <a-button type="danger" @click="refresh">
+                <RedoOutlined /> 
+            </a-button>
+        </div>
     <a-table :columns="columns" :dataSource="grades" rowKey="Sno">
         <!-- 添加操作列 -->
         <template #headerCell="{ column }">
@@ -27,16 +33,20 @@
             </template>
         </template>
     </a-table>
+</div>
 </template>
 <script>
 import axios from 'axios';
 import EditGrade from './EditGrade.vue';
+import { RedoOutlined, SmileOutlined } from '@ant-design/icons-vue';
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:1145'
 });
 export default {
     components: {
-        EditGrade
+        EditGrade,
+        RedoOutlined,
+        SmileOutlined
     },
     data() {
         return {
@@ -150,3 +160,8 @@ export default {
     },
 };
 </script>
+<style scoped>
+.button-container {
+    text-align: right;
+}
+</style>

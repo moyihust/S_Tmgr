@@ -1,42 +1,53 @@
 <template>
-    <a-table :columns="columns" :dataSource="courses" rowKey="Cno">
-        <!-- 添加操作列 -->
-        <template #headerCell="{ column }">
-            <template v-if="column.key === 'Cname'">
-                <span>
-                    <smile-outlined />
-                    Cname
-                </span>
-            </template>
-        </template>
+    <div>
+        <div class="button-container">
+            <a-button type="danger" @click="refresh">
+                <RedoOutlined />
+            </a-button>
+        </div>
 
-        <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'Cname'">
-                <a>
-                    {{ record.Cname }}
-                </a>
+        <a-table :columns="columns" :dataSource="courses" rowKey="Cno">
+            <!-- 添加操作列 -->
+            <template #headerCell="{ column }">
+                <template v-if="column.key === 'Cname'">
+                    <span>
+                        <smile-outlined />
+                        Cname
+                    </span>
+                </template>
             </template>
-            <template v-else-if="column.key === 'action'">
-                <span>
-                    <EditCourse :record="record" @refresh="refresh"/>
-                    <a-divider type="vertical" />
-                    <a-popconfirm title="确定要删除吗?" @confirm="handleDeleteCourse(record.Cno)">
-                        <a-button  type="danger">删除</a-button>
-                    </a-popconfirm>
-                </span>
+
+            <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'Cname'">
+                    <a>
+                        {{ record.Cname }}
+                    </a>
+                </template>
+                <template v-else-if="column.key === 'action'">
+                    <span>
+                        <EditCourse :record="record" @refresh="refresh" />
+                        <a-divider type="vertical" />
+                        <a-popconfirm title="确定要删除吗?" @confirm="handleDeleteCourse(record.Cno)">
+                            <a-button type="danger">删除</a-button>
+                        </a-popconfirm>
+                    </span>
+                </template>
             </template>
-        </template>
-    </a-table>
+        </a-table>
+    </div>
 </template>
 <script>
 import axios from 'axios';
 import EditCourse from './EditCourse.vue';
+import { RedoOutlined, SmileOutlined } from '@ant-design/icons-vue';
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:1145'
+    baseURL: 'http://localhost:1145'
 });
 export default {
     components: {
-        EditCourse
+        EditCourse,
+        RedoOutlined,
+        SmileOutlined
     },
     data() {
         return {
@@ -125,22 +136,27 @@ export default {
         refresh() {
             console.log('refresh');
             axiosInstance.get('/course')
+                .then(response => {
+                    this.courses = response.data;
+                })
+                .catch(error => {
+                    console.error('Error fetching courses:', error);
+                });
+        },
+    },
+    mounted() {
+        axiosInstance.get('/course')
             .then(response => {
                 this.courses = response.data;
             })
             .catch(error => {
                 console.error('Error fetching courses:', error);
             });
-        },
-    },
-    mounted() {
-        axiosInstance.get('/course')
-      .then(response => {
-        this.courses = response.data;
-      })
-      .catch(error => {
-        console.error('Error fetching courses:', error);
-      });
     },
 };
 </script>
+<style scoped>
+.button-container {
+    text-align: right;
+}
+</style>

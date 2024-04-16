@@ -1,42 +1,52 @@
 <template>
-    <a-table :columns="columns" :dataSource="students" rowKey="studentId">
-        <!-- 添加操作列 -->
-        <template #headerCell="{ column }">
-            <template v-if="column.key === 'Sname'">
-                <span>
-                    <smile-outlined />
-                    Name
-                </span>
+    <div>
+        <div class="button-container">
+            <a-button type="danger" @click="refresh">
+                <RedoOutlined />
+            </a-button>
+        </div>
+        <a-table :columns="columns" :dataSource="students" rowKey="studentId">
+            <!-- 添加操作列 -->
+            <template #headerCell="{ column }">
+                <template v-if="column.key === 'Sname'">
+                    <span>
+                        <smile-outlined />
+                        Name
+                    </span>
+                </template>
             </template>
-        </template>
 
-        <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'Sname'">
-                <a>
-                    {{ record.Sname }}
-                </a>
+            <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'Sname'">
+                    <a>
+                        {{ record.Sname }}
+                    </a>
+                </template>
+                <template v-else-if="column.key === 'action'">
+                    <span>
+                        <EditStudent :record="record" @refresh="refresh" />
+                        <a-divider type="vertical" />
+                        <a-popconfirm title="确定要删除吗?" @confirm="handleDeleteStudent(record.Sno)">
+                            <a-button type="danger">删除</a-button>
+                        </a-popconfirm>
+                    </span>
+                </template>
             </template>
-            <template v-else-if="column.key === 'action'">
-                <span>
-                    <EditStudent :record="record" @refresh="refresh"/>
-                    <a-divider type="vertical" />
-                    <a-popconfirm title="确定要删除吗?" @confirm="handleDeleteStudent(record.Sno)">
-                        <a-button  type="danger">删除</a-button>
-                    </a-popconfirm>
-                </span>
-            </template>
-        </template>
-    </a-table>
+        </a-table>
+    </div>
 </template>
 <script>
 import axios from 'axios';
 import EditStudent from './EditStudent.vue';
+import { RedoOutlined, SmileOutlined } from '@ant-design/icons-vue';
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:1145'
+    baseURL: 'http://localhost:1145'
 });
 export default {
     components: {
-        EditStudent
+        EditStudent,
+        RedoOutlined,
+        SmileOutlined
     },
     data() {
         return {
@@ -147,23 +157,29 @@ export default {
         refresh() {
             console.log('refresh');
             axiosInstance.get('/student')
+                .then(response => {
+                    this.students = response.data;
+                })
+                .catch(error => {
+                    console.error('Error fetching students:', error);
+                });
+        },
+    },
+    mounted() {
+        // ...其他初始化操作
+        axiosInstance.get('/student')
             .then(response => {
                 this.students = response.data;
             })
             .catch(error => {
                 console.error('Error fetching students:', error);
             });
-        },
-    },
-    mounted() {
-        // ...其他初始化操作
-        axiosInstance.get('/student')
-      .then(response => {
-        this.students = response.data;
-      })
-      .catch(error => {
-        console.error('Error fetching students:', error);
-      });
     },
 };
 </script>
+<style scoped>
+.button-container {
+    margin-bottom: 16px;
+    text-align: right;
+}
+</style>
