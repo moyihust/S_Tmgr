@@ -55,7 +55,7 @@
   import axios from 'axios';
   
   const axiosInstance = axios.create({
-    baseURL: 'http://localhost:1145'
+    baseURL: 'http://10.12.180.78:1145'
   });
   const form = reactive({
     Sno: '',

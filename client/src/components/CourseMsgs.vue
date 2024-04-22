@@ -41,7 +41,7 @@ import axios from 'axios';
 import EditCourse from './EditCourse.vue';
 import { RedoOutlined, SmileOutlined } from '@ant-design/icons-vue';
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:1145'
+    baseURL: 'http://10.12.180.78:1145'
 });
 export default {
     components: {
