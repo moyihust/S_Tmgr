@@ -2,7 +2,7 @@
   <a-layout style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
       <div class="logo" >
-        <img src="./assets/logo2.jpg" alt="logo" />
+        <img src="./assets/logo3.jpg" alt="logo" />
       </div>
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
         <a-menu-item key="1">
@@ -51,8 +51,9 @@ const selectedKeys = ref(['1']);
 <style scoped>
 #components-layout-demo-side .logo {
   height: 32px;
+  width: auto;
   margin: 16px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(255, 255, 255);
 }
 
 .site-layout .site-layout-background {
@@ -61,5 +62,9 @@ const selectedKeys = ref(['1']);
 
 [data-theme='dark'] .site-layout .site-layout-background {
   background: #141414;
+}
+.logo img {
+  max-height: 100%;
+  max-width: 100%;
 }
 </style>

@@ -5,7 +5,7 @@
                 <RedoOutlined />
             </a-button>
         </div>
-        <a-table :columns="columns" :dataSource="students" rowKey="studentId">
+        <a-table :columns="columns" :dataSource="students" :pagination="students.length > pageSize" rowKey="studentId" >
             <!-- 添加操作列 -->
             <template #headerCell="{ column }">
                 <template v-if="column.key === 'Sname'">
@@ -51,6 +51,7 @@ export default {
     data() {
         return {
             // ...其他数据
+            pageSize: 10, // 每页显示的学生数量
             showEditDrawer: false, // 确保这个变量被定义
             currentSno: null, // 用于记录当前编辑的学生学号
             students: [

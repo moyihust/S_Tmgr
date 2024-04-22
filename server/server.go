@@ -59,7 +59,7 @@ func main() {
 	// logrus.SetLevel(logrus.DebugLevel)
 	// logrus.SetOutput(os.Stdout)
 
-	dsn := "root@tcp(127.0.0.1:2881)/S_T?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "moyi:Lgt1441339168@tcp(obmtkk8o4cuc0ig0-mi.cn-hangzhou.oceanbase.aliyuncs.com:3306)/S_T?charset=utf8mb4&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

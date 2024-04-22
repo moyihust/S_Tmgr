@@ -52,4 +52,3 @@ insert into SC values('200215121','3',88);
 insert into SC values('200215122','2',90);
 insert into SC values('200215122','3',80);
 /*为表 SC 添加数据*/
- 
